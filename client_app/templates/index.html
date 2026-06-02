@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth2/OIDC Course Demo Client</title>
+    <link rel="stylesheet" href="/static/css/client.css" />
+  </head>
+  <body>
+    <div class="background-orb orb-a"></div>
+    <div class="background-orb orb-b"></div>
+    <div class="background-grid"></div>
+
+    <div class="page-shell page-shell--compact">
+      <header class="hero-card hero-card--compact">
+        <div class="hero-copy hero-copy--compact">
+          <div class="hero-badge-row">
+            <p class="eyebrow">OAuth2 Demo</p>
+            <span class="floating-chip">Code Flow</span>
+          </div>
+          <h1>课程演示客户端</h1>
+          <p class="hero-text hero-text--compact">本地演示授权码登录、Token 获取与权限访问结果。</p>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="/login">标准登录</a>
+            <a class="button button-secondary" href="/login?scope=read:profile%20read:email%20admin:panel">高权限实验</a>
+          </div>
+
+          <div class="showcase-strip showcase-strip--compact">
+            <div class="showcase-pill">State</div>
+            <div class="showcase-pill">Code</div>
+            <div class="showcase-pill">JWT</div>
+            <div class="showcase-pill">Role + Scope</div>
+          </div>
+        </div>
+
+        <div class="hero-visual hero-visual--stacked hero-visual--compact">
+          <div class="visual-card visual-card-back">
+            <img src="/static/img/oauth-flow-hero.svg" alt="OAuth flow illustration" />
+          </div>
+          <div class="visual-card visual-card-front">
+            <div class="visual-mini-panel">
+              <span class="visual-mini-label">Preview</span>
+              <div class="mini-flow-node">Client</div>
+              <div class="mini-flow-line"></div>
+              <div class="mini-flow-node">Auth</div>
+              <div class="mini-flow-line"></div>
+              <div class="mini-flow-node">API</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-grid content-grid--compact">
+        <section class="panel panel-feature panel-feature--compact">
+          <div class="panel-header-row">
+            <div>
+              <p class="panel-label">流程</p>
+              <h2>四步完成演示</h2>
+            </div>
+          </div>
+
+          <div class="timeline timeline-rich">
+            <div class="timeline-item timeline-item-rich">
+              <span class="timeline-dot"></span>
+              <div>
+                <h3>1. 发起授权</h3>
+                <p>客户端带上参数跳转到认证服务器。</p>
+              </div>
+            </div>
+            <div class="timeline-item timeline-item-rich">
+              <span class="timeline-dot"></span>
+              <div>
+                <h3>2. 登录认证</h3>
+                <p>用户输入账号密码完成身份验证。</p>
+              </div>
+            </div>
+            <div class="timeline-item timeline-item-rich">
+              <span class="timeline-dot"></span>
+              <div>
+                <h3>3. 换取 Token</h3>
+                <p>客户端在回调阶段用 code 换 token。</p>
+              </div>
+            </div>
+            <div class="timeline-item timeline-item-rich">
+              <span class="timeline-dot"></span>
+              <div>
+                <h3>4. 访问资源</h3>
+                <p>资源服务器根据角色和 scope 返回结果。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel-accent panel-showcase panel-showcase--compact">
+          <div class="panel-header-row">
+            <div>
+              <p class="panel-label">账号</p>
+              <h2>推荐演示</h2>
+            </div>
+          </div>
+
+          <div class="account-list account-list-rich">
+            <article class="account-card account-card-user">
+              <div class="account-icon">U</div>
+              <div>
+                <h3>普通用户</h3>
+                <p class="account-name">alice / alice123</p>
+                <p>适合展示基础访问成功、后台访问失败。</p>
+              </div>
+            </article>
+            <article class="account-card account-card-admin">
+              <div class="account-icon">A</div>
+              <div>
+                <h3>管理员</h3>
+                <p class="account-name">admin / admin123</p>
+                <p>适合展示高权限资源访问成功。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

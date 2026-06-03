@@ -29,6 +29,18 @@ def profile(payload=Depends(get_token_payload)):
         "username": payload.get("username"),
         "role": payload.get("role"),
         "scope": payload.get("scope"),
+        "client_id": payload.get("client_id"),
+    }
+
+
+@router.get("/email")
+def email(payload=Depends(get_token_payload)):
+    require_scope(payload.get("scope", ""), "read:email")
+    return {
+        "message": "email access granted",
+        "username": payload.get("username"),
+        "email": f"{payload.get('username')}@demo.local",
+        "scope": payload.get("scope"),
     }
 
 
@@ -41,4 +53,5 @@ def admin(payload=Depends(get_token_payload)):
         "username": payload.get("username"),
         "role": payload.get("role"),
         "scope": payload.get("scope"),
+        "client_id": payload.get("client_id"),
     }

@@ -4,122 +4,90 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OAuth2/OIDC Course Demo Client</title>
-    <link rel="stylesheet" href="/static/css/client.css" />
+    <link rel="stylesheet" href="/static/css/home.css" />
   </head>
-  <body>
-    <div class="background-orb orb-a"></div>
-    <div class="background-orb orb-b"></div>
-    <div class="background-grid"></div>
+  <body class="home-page-shell">
+    <div class="home-orb home-orb--left"></div>
+    <div class="home-orb home-orb--right"></div>
 
-    <div class="page-shell page-shell--compact">
-      <header class="hero-card hero-card--compact">
-        <div class="hero-copy hero-copy--compact">
-          <div class="hero-badge-row">
-            <p class="eyebrow">OAuth2 Demo</p>
-            <span class="floating-chip">Code Flow</span>
-          </div>
-          <h1>课程演示客户端</h1>
-          <p class="hero-text hero-text--compact">本地演示授权码登录、Token 获取与权限访问结果。</p>
+    <main class="home-shell">
+      <section class="home-hero">
+        <div class="home-copy">
+          <p class="home-eyebrow">OAuth2 Course Demo</p>
+          <h1>身份认证与访问控制实验客户端</h1>
+          <p class="home-lead">围绕授权码模式、scope、PKCE 与受保护资源访问结果构建的课程演示前端，适合课堂展示、论文截图和小组协作联调。</p>
 
-          <div class="hero-actions">
-            <a class="button button-primary" href="/login">标准登录</a>
-            <a class="button button-secondary" href="/login?scope=read:profile%20read:email%20admin:panel">高权限实验</a>
-          </div>
-
-          <div class="showcase-strip showcase-strip--compact">
-            <div class="showcase-pill">State</div>
-            <div class="showcase-pill">Code</div>
-            <div class="showcase-pill">JWT</div>
-            <div class="showcase-pill">Role + Scope</div>
+          <div class="home-summary-grid">
+            <article class="home-summary-card">
+              <span>Demo Client</span>
+              <strong>demo-client</strong>
+              <p>统一回调到 127.0.0.1:8001/callback。</p>
+            </article>
+            <article class="home-summary-card">
+              <span>Resource APIs</span>
+              <strong>/profile · /email · /admin</strong>
+              <p>用于展示基础资料、邮箱权限与管理员权限差异。</p>
+            </article>
+            <article class="home-summary-card">
+              <span>Lab Focus</span>
+              <strong>Scope · PKCE · State</strong>
+              <p>适合做正常链路、权限控制和安全对照实验。</p>
+            </article>
           </div>
         </div>
 
-        <div class="hero-visual hero-visual--stacked hero-visual--compact">
-          <div class="visual-card visual-card-back">
-            <img src="/static/img/oauth-flow-hero.svg" alt="OAuth flow illustration" />
-          </div>
-          <div class="visual-card visual-card-front">
-            <div class="visual-mini-panel">
-              <span class="visual-mini-label">Preview</span>
-              <div class="mini-flow-node">Client</div>
-              <div class="mini-flow-line"></div>
-              <div class="mini-flow-node">Auth</div>
-              <div class="mini-flow-line"></div>
-              <div class="mini-flow-node">API</div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main class="content-grid content-grid--compact">
-        <section class="panel panel-feature panel-feature--compact">
-          <div class="panel-header-row">
+        <aside class="home-control-card">
+          <div class="home-card-head">
             <div>
-              <p class="panel-label">流程</p>
-              <h2>四步完成演示</h2>
+              <p class="home-eyebrow">Client Entry</p>
+              <h2>实验登录入口</h2>
             </div>
+            <span class="home-chip">Local Lab</span>
           </div>
 
-          <div class="timeline timeline-rich">
-            <div class="timeline-item timeline-item-rich">
-              <span class="timeline-dot"></span>
-              <div>
-                <h3>1. 发起授权</h3>
-                <p>客户端带上参数跳转到认证服务器。</p>
-              </div>
-            </div>
-            <div class="timeline-item timeline-item-rich">
-              <span class="timeline-dot"></span>
-              <div>
-                <h3>2. 登录认证</h3>
-                <p>用户输入账号密码完成身份验证。</p>
-              </div>
-            </div>
-            <div class="timeline-item timeline-item-rich">
-              <span class="timeline-dot"></span>
-              <div>
-                <h3>3. 换取 Token</h3>
-                <p>客户端在回调阶段用 code 换 token。</p>
-              </div>
-            </div>
-            <div class="timeline-item timeline-item-rich">
-              <span class="timeline-dot"></span>
-              <div>
-                <h3>4. 访问资源</h3>
-                <p>资源服务器根据角色和 scope 返回结果。</p>
-              </div>
-            </div>
-          </div>
-        </section>
+          <p class="home-panel-copy">主页只保留必要实验配置和快捷入口，其他说明内容统一放入说明页，避免页面信息堆叠。</p>
 
-        <section class="panel panel-accent panel-showcase panel-showcase--compact">
-          <div class="panel-header-row">
-            <div>
-              <p class="panel-label">账号</p>
-              <h2>推荐演示</h2>
+          <form class="home-form" method="get" action="/login">
+            <label class="home-label">
+              请求 scope
+              <input class="home-input" name="scope" value="read:profile read:email" placeholder="请输入 scope" />
+            </label>
+
+            <div class="home-fieldset">
+              <span class="home-label-title">PKCE 模式</span>
+              <div class="home-toggle-grid">
+                <label class="home-toggle-card">
+                  <input type="radio" name="pkce" value="auto" checked />
+                  <span class="home-toggle-title">Auto</span>
+                  <small>跟随系统默认设置</small>
+                </label>
+                <label class="home-toggle-card">
+                  <input type="radio" name="pkce" value="on" />
+                  <span class="home-toggle-title">On</span>
+                  <small>强制启用 PKCE</small>
+                </label>
+                <label class="home-toggle-card">
+                  <input type="radio" name="pkce" value="off" />
+                  <span class="home-toggle-title">Off</span>
+                  <small>关闭 PKCE 做对照</small>
+                </label>
+              </div>
             </div>
+
+            <button class="home-button home-button--primary" type="submit">按当前配置登录</button>
+          </form>
+
+          <div class="home-quick-actions">
+            <a class="home-button home-button--secondary" href="/login?scope=read:profile%20read:email">邮箱接口实验</a>
+            <a class="home-button home-button--secondary" href="/login?scope=read:profile%20read:email%20admin:panel">高权限实验</a>
+            <a class="home-button home-button--secondary" href="/login?scope=read:profile%20read:email&pkce=on">PKCE 实验</a>
           </div>
 
-          <div class="account-list account-list-rich">
-            <article class="account-card account-card-user">
-              <div class="account-icon">U</div>
-              <div>
-                <h3>普通用户</h3>
-                <p class="account-name">alice / alice123</p>
-                <p>适合展示基础访问成功、后台访问失败。</p>
-              </div>
-            </article>
-            <article class="account-card account-card-admin">
-              <div class="account-icon">A</div>
-              <div>
-                <h3>管理员</h3>
-                <p class="account-name">admin / admin123</p>
-                <p>适合展示高权限资源访问成功。</p>
-              </div>
-            </article>
-          </div>
-        </section>
-      </main>
-    </div>
+          <a href="/guide" class="home-link-button">查看实验说明页</a>
+        </aside>
+      </section>
+
+      <a href="https://deerflow.tech" target="_blank" class="deerflow-mark" rel="noreferrer">Created By Deerflow</a>
+    </main>
   </body>
 </html>

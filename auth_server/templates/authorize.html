@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Authorization Server Login</title>
+    <link rel="stylesheet" href="/static/css/pages.css" />
+  </head>
+  <body class="page-shell-body">
+    <div class="page-shell page-shell--auth">
+      <div class="page-flag"><span class="page-flag__dot"></span>认证服务器登录页</div>
+
+      <header class="page-hero page-hero--split">
+        <section class="page-card page-card--hero">
+          <p class="page-eyebrow">Authorization Server</p>
+          <h1>登录并完成授权</h1>
+          <p class="page-lead">输入演示账号后，系统会签发 authorization code，并回跳客户端继续完成 token 交换和资源访问验证。</p>
+
+          <div class="page-mini-grid">
+            <article class="page-mini-card">
+              <span>当前流程</span>
+              <strong>Identity Check → Authorization Code → Callback</strong>
+            </article>
+            <article class="page-mini-card">
+              <span>安全参数</span>
+              <strong>{{ pkce_hint }}</strong>
+            </article>
+            <article class="page-mini-card">
+              <span>本次 Scope</span>
+              <strong>{{ scope }}</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="page-card page-card--control">
+          <div class="page-card-head">
+            <div>
+              <p class="page-eyebrow">Sign In</p>
+              <h2>认证服务器登录页</h2>
+            </div>
+            <span class="page-chip">Client {{ client_id }}</span>
+          </div>
+
+          <div class="page-meta-stack">
+            <div class="page-mini-card">
+              <span>redirect_uri</span>
+              <strong>{{ redirect_uri }}</strong>
+            </div>
+            <div class="page-mini-card">
+              <span>state</span>
+              <strong>{{ state_hint }}</strong>
+            </div>
+          </div>
+
+          <form class="page-form" method="post" action="/authorize">
+            <input type="hidden" name="client_id" value="{{ client_id }}" />
+            <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}" />
+            <input type="hidden" name="scope" value="{{ scope }}" />
+            <input type="hidden" name="state" value="{{ state }}" />
+            <input type="hidden" name="code_challenge" value="{{ code_challenge }}" />
+            <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}" />
+
+            <label class="page-label">用户名<input class="page-input" name="username" placeholder="请输入用户名" /></label>
+            <label class="page-label">密码<input class="page-input" name="password" type="password" placeholder="请输入密码" /></label>
+            <button class="page-button" type="submit">登录并授权</button>
+          </form>
+
+          <div class="page-account-list">
+            <article class="page-account-card page-account-card--plain">
+              <div>
+                <h3>普通用户</h3>
+                <p class="page-account-name">alice / alice123</p>
+              </div>
+            </article>
+            <article class="page-account-card page-account-card--plain">
+              <div>
+                <h3>管理员</h3>
+                <p class="page-account-name">admin / admin123</p>
+              </div>
+            </article>
+            <article class="page-account-card page-account-card--plain">
+              <div>
+                <h3>默认客户端</h3>
+                <p class="page-account-name">{{ default_client_id }}</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </header>
+
+      <a href="https://deerflow.tech" target="_blank" class="deerflow-mark" rel="noreferrer">Created By Deerflow</a>
+    </div>
+  </body>
+</html>

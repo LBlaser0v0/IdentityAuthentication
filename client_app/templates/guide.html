@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Experiment Guide</title>
+    <link rel="stylesheet" href="/static/css/pages.css" />
+  </head>
+  <body class="page-shell-body">
+    <div class="page-shell">
+      <div class="page-flag"><span class="page-flag__dot"></span>实验说明页</div>
+
+      <header class="page-hero page-hero--split">
+        <section class="page-card page-card--hero">
+          <p class="page-eyebrow">Experiment Guide</p>
+          <h1>实验说明与参数参考</h1>
+          <p class="page-lead">这部分用于讲解实验路线、scope 组合、PKCE 切换方式和推荐账号，适合答辩时边讲边操作。</p>
+
+          <div class="page-mini-grid">
+            <article class="page-mini-card">
+              <span>推荐顺序</span>
+              <strong>标准登录 → 邮箱接口 → 高权限对照 → PKCE 防御</strong>
+            </article>
+            <article class="page-mini-card">
+              <span>讲解重点</span>
+              <strong>scope、role、state 与结果页资源返回的对应关系</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="page-card page-card--control">
+          <div class="page-card-head">
+            <div>
+              <p class="page-eyebrow">Control</p>
+              <h2>自定义实验入口</h2>
+            </div>
+            <span class="page-chip">Client demo-client</span>
+          </div>
+
+          <form class="page-form" method="get" action="/login">
+            <label class="page-label" for="scope-select">快捷 scope</label>
+            <select id="scope-select" class="page-input" data-scope-select>
+              {% for item in quick_options %}
+              <option value="{{ item.value }}">{{ item.label }}</option>
+              {% endfor %}
+            </select>
+
+            <div class="page-inline-head">
+              <label class="page-label" for="scope-input">请求 scope</label>
+              <button type="button" class="page-text-button" data-copy-scope>复制</button>
+            </div>
+            <input id="scope-input" class="page-input" type="text" name="scope" value="{{ quick_options[0].value }}" data-scope-input />
+
+            <div class="page-fieldset">
+              <span class="page-label">PKCE 模式</span>
+              <div class="page-toggle-grid">
+                <label class="page-toggle-card">
+                  <input type="radio" name="pkce" value="auto" checked />
+                  <span>Auto</span>
+                  <small>跟随系统默认配置</small>
+                </label>
+                <label class="page-toggle-card">
+                  <input type="radio" name="pkce" value="on" />
+                  <span>On</span>
+                  <small>强制启用 PKCE</small>
+                </label>
+                <label class="page-toggle-card">
+                  <input type="radio" name="pkce" value="off" />
+                  <span>Off</span>
+                  <small>关闭 PKCE 做对照</small>
+                </label>
+              </div>
+            </div>
+
+            <button class="page-button" type="submit">按当前参数发起登录</button>
+          </form>
+        </section>
+      </header>
+
+      <main class="page-content">
+        <section class="page-card">
+          <div class="page-card-head page-card-head--stack">
+            <div>
+              <p class="page-eyebrow">实验路线</p>
+              <h2>建议按这个顺序演示</h2>
+            </div>
+            <p class="page-section-copy">从基础链路到权限控制，再到 PKCE 安全增强，老师会更容易理解系统的演进逻辑。</p>
+          </div>
+
+          <div class="page-timeline">
+            <div class="page-timeline-item">
+              <span class="page-index">01</span>
+              <div>
+                <h3>标准登录</h3>
+                <p>先验证 state、授权码回调与 /profile 正常访问，建立基准链路。</p>
+              </div>
+            </div>
+            <div class="page-timeline-item">
+              <span class="page-index">02</span>
+              <div>
+                <h3>邮箱接口</h3>
+                <p>使用 read:email 观察 /email 是否返回，并确认 scope 过滤逻辑。</p>
+              </div>
+            </div>
+            <div class="page-timeline-item">
+              <span class="page-index">03</span>
+              <div>
+                <h3>高权限对照</h3>
+                <p>对比 alice 与 admin 在 admin:panel 条件下对 /admin 的访问差异。</p>
+              </div>
+            </div>
+            <div class="page-timeline-item">
+              <span class="page-index">04</span>
+              <div>
+                <h3>PKCE 防御</h3>
+                <p>切换 PKCE 开关，对照 callback 与 token 交换阶段的安全参数变化。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-grid">
+          <section class="page-card">
+            <div class="page-card-head page-card-head--stack">
+              <div>
+                <p class="page-eyebrow">快捷场景</p>
+                <h2>现成实验入口</h2>
+              </div>
+              <p class="page-section-copy">适合答辩时快速切换不同场景，不必临时重新组织参数。</p>
+            </div>
+
+            <div class="page-action-list">
+              {% for item in experiment_cards %}
+              <a class="page-action-card" href="{{ item.href }}">
+                <div>
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.description }}</p>
+                </div>
+                <span>{{ item.meta }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </section>
+
+          <section class="page-card">
+            <div class="page-card-head page-card-head--stack">
+              <div>
+                <p class="page-eyebrow">账号说明</p>
+                <h2>推荐演示账号</h2>
+              </div>
+              <p class="page-section-copy">先展示普通用户受限，再切换管理员展示 role 与 scope 同时满足时的效果。</p>
+            </div>
+
+            <div class="page-account-list">
+              {% for item in account_cards %}
+              <article class="page-account-card">
+                <div class="page-account-icon {% if item.admin %}page-account-icon--admin{% endif %}">{{ item.icon }}</div>
+                <div>
+                  <h3>{{ item.title }}</h3>
+                  <p class="page-account-name">{{ item.name }}</p>
+                  <p>{{ item.description }}</p>
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+          </section>
+        </section>
+
+        <a href="/" class="page-ghost-button">返回主页</a>
+      </main>
+
+      <a href="https://deerflow.tech" target="_blank" class="deerflow-mark" rel="noreferrer">Created By Deerflow</a>
+    </div>
+
+    <script>
+      const scopeSelect = document.querySelector('[data-scope-select]');
+      const scopeInput = document.querySelector('[data-scope-input]');
+      const copyScope = document.querySelector('[data-copy-scope]');
+
+      if (scopeSelect && scopeInput) {
+        scopeSelect.addEventListener('change', () => {
+          scopeInput.value = scopeSelect.value;
+        });
+      }
+
+      if (copyScope && scopeInput) {
+        copyScope.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(scopeInput.value);
+            copyScope.textContent = '已复制';
+            setTimeout(() => {
+              copyScope.textContent = '复制';
+            }, 1200);
+          } catch (error) {
+            copyScope.textContent = '复制失败';
+            setTimeout(() => {
+              copyScope.textContent = '复制';
+            }, 1200);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

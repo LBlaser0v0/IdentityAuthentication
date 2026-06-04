@@ -30,6 +30,12 @@ def _encode_s256(verifier: str) -> str:
     return base64.urlsafe_b64encode(digest).decode("utf-8").rstrip("=")
 
 
+def _clip_scope(requested_scope: str, allowed_scope: str) -> str:
+    allowed = set(allowed_scope.split())
+    granted = [scope for scope in requested_scope.split() if scope in allowed]
+    return " ".join(granted)
+
+
 @router.get("/")
 def root():
     return {"service": "authorization-server", "status": "ok", "pkce_enabled": ENABLE_PKCE}
@@ -53,7 +59,7 @@ def authorize_page(
             "redirect_uri": redirect_uri,
             "scope": scope,
             "state": state,
-            "state_hint": state or "本次请求已携带 state 参数",
+            "state_hint": state or "本次请求未携带 state 参数",
             "code_challenge": code_challenge,
             "code_challenge_method": code_challenge_method,
             "pkce_hint": _pkce_hint(code_challenge, code_challenge_method),
@@ -88,18 +94,18 @@ def authorize_submit(
     if not user:
         raise HTTPException(status_code=401, detail="invalid credentials")
 
-    code = create_authorization_code(
+    granted_scope = _clip_scope(scope, user.allowed_scopes)
+    code_record = create_authorization_code(
         db,
-        username=user.username,
-        role=user.role,
+        user=user,
         client_id=client_id,
         redirect_uri=redirect_uri,
-        scope=scope,
+        scope=granted_scope,
         state=state,
         code_challenge=code_challenge,
         code_challenge_method=code_challenge_method,
     )
-    query = urlencode({"code": code, "state": state})
+    query = urlencode({"code": code_record.code, "state": state})
     return RedirectResponse(url=f"{redirect_uri}?{query}", status_code=302)
 
 
@@ -140,7 +146,5 @@ def token(
         if expected != code_record.code_challenge:
             raise HTTPException(status_code=400, detail="invalid_code_verifier")
 
-    access_token = issue_access_token(code_record)
-    code_record.used = True
-    db.commit()
+    access_token, _user = issue_access_token(db, code_record)
     return TokenResponse(access_token=access_token, scope=code_record.scope, expires_in=1800)

@@ -29,6 +29,7 @@
             <div class="page-stat-pill">Email {{ email_status }}</div>
             <div class="page-stat-pill">Admin {{ admin_status }}</div>
             <div class="page-stat-pill">Expires {{ expires_in }}s</div>
+            <div class="page-stat-pill">Token {{ token_elapsed_ms }} ms</div>
           </div>
 
           <div class="page-button-grid">
@@ -53,6 +54,10 @@
               <span>Access Token TTL</span>
               <strong>{{ expires_in }}s</strong>
             </article>
+            <article class="page-mini-card">
+              <span>Token Exchange Time</span>
+              <strong>{{ token_elapsed_ms }} ms</strong>
+            </article>
           </div>
         </aside>
       </header>
@@ -72,7 +77,7 @@
               <p class="page-eyebrow">Access Token</p>
               <span class="page-chip">JWT</span>
             </div>
-            <pre>{{ access_token }}</pre>
+            <pre class="page-pre-wrap">{{ access_token }}</pre>
           </div>
 
           <div class="page-token-box">
@@ -80,7 +85,7 @@
               <p class="page-eyebrow">Decoded Payload</p>
               <span class="page-chip">Contract Fields</span>
             </div>
-            <pre>{{ decoded_payload }}</pre>
+            <pre class="page-pre-wrap">{{ decoded_payload }}</pre>
           </div>
         </section>
 

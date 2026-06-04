@@ -1,3 +1,7 @@
+from json import dumps
+from textwrap import fill
+from time import perf_counter
+
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -9,6 +13,14 @@ from config.settings import AUTH_SERVER_BASE, DEFAULT_CLIENT_ID, DEFAULT_CLIENT_
 
 router = APIRouter()
 templates = Jinja2Templates(directory="client_app/templates")
+
+
+def format_token_for_display(token: str, width: int = 72) -> str:
+    return fill(token, width=width)
+
+
+def format_payload_for_display(payload: dict) -> str:
+    return dumps(payload, ensure_ascii=False, indent=2)
 
 
 def build_status_card(title: str, response: httpx.Response, success_hint: str):
@@ -124,11 +136,13 @@ def callback(request: Request, code: str, state: str = ""):
     if verifier:
         token_request["code_verifier"] = verifier
 
+    token_started_at = perf_counter()
     token_response = httpx.post(
         f"{AUTH_SERVER_BASE}/token",
         data=token_request,
         timeout=10.0,
     )
+    token_elapsed_ms = round((perf_counter() - token_started_at) * 1000, 2)
     if token_response.status_code != 200:
         raise HTTPException(status_code=400, detail=token_response.text)
 
@@ -166,14 +180,15 @@ def callback(request: Request, code: str, state: str = ""):
             "request": request,
             "code": code,
             "granted_scope": token_data["scope"],
-            "access_token": access_token,
+            "access_token": format_token_for_display(access_token),
             "profile_status": profile_response.status_code,
             "email_status": email_response.status_code,
             "admin_status": admin_response.status_code,
             "result_cards": result_cards,
             "pkce_mode": request.cookies.get("oauth_code_challenge_method", "enabled") if verifier else request.cookies.get("oauth_pkce_mode", "disabled"),
             "expires_in": token_data.get("expires_in", 0),
-            "decoded_payload": decoded_payload,
+            "token_elapsed_ms": token_elapsed_ms,
+            "decoded_payload": format_payload_for_display(decoded_payload),
         },
     )
     response.delete_cookie("oauth_state")

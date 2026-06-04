@@ -389,6 +389,22 @@ attack_simulator/
 
 ## C 同学实验使用方式建议
 
+当前已新增 C 同学实验模块：
+
+```bash
+python3 scripts/run_c_experiments.py
+```
+
+运行前需要先启动三台服务。实验结果会写入：
+
+- `attack_simulator/results/latest_results.json`
+- `attack_simulator/results/latest_summary.csv`
+
+详细说明见：
+
+- `attack_simulator/README.md`
+- `docs/c_experiment_plan.md`
+
 ### 1. 第 5 章：攻击与防御实验
 推荐至少做这三组：
 

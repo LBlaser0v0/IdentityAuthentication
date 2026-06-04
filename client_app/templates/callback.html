@@ -3,105 +3,89 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Client Callback Result</title>
+    <title>Login Result</title>
     <link rel="stylesheet" href="/static/css/pages.css" />
   </head>
   <body class="page-shell-body">
-    <div class="page-shell">
-      <div class="page-flag"><span class="page-flag__dot"></span>授权结果页</div>
-
-      <header class="page-hero page-hero--result">
-        <section class="page-card page-card--hero">
-          <div class="page-card-head">
-            <div>
-              <p class="page-eyebrow">Authorization Callback</p>
-              <h1>授权结果总览</h1>
-            </div>
-            <span class="page-chip page-chip--success">Result Snapshot</span>
-          </div>
-
-          <p class="page-lead">集中展示 code、scope、PKCE、JWT payload 与资源访问结果，适合课程答辩、接口核对和实验截图整理。</p>
-
-          <div class="page-stat-grid">
-            <div class="page-stat-pill">PKCE {{ pkce_mode }}</div>
-            <div class="page-stat-pill">Scope {{ granted_scope }}</div>
-            <div class="page-stat-pill">Profile {{ profile_status }}</div>
-            <div class="page-stat-pill">Email {{ email_status }}</div>
-            <div class="page-stat-pill">Admin {{ admin_status }}</div>
-            <div class="page-stat-pill">Expires {{ expires_in }}s</div>
-            <div class="page-stat-pill">Token {{ token_elapsed_ms }} ms</div>
-          </div>
-
-          <div class="page-button-grid">
-            <a class="page-button" href="/">返回主页</a>
-            <a class="page-button" href="/login">标准登录</a>
-            <a class="page-button" href="/login?scope=read:profile%20read:email%20admin:panel">高权限实验</a>
-            <a class="page-button" href="/login?scope=read:profile%20read:email&pkce=on">PKCE 实验</a>
-          </div>
-        </section>
-
-        <aside class="page-card page-card--sidebar">
-          <div class="page-mini-grid page-mini-grid--single">
-            <article class="page-mini-card">
-              <span>Authorization Code</span>
-              <strong>{{ code }}</strong>
-            </article>
-            <article class="page-mini-card">
-              <span>Granted Scope</span>
-              <strong>{{ granted_scope }}</strong>
-            </article>
-            <article class="page-mini-card">
-              <span>Access Token TTL</span>
-              <strong>{{ expires_in }}s</strong>
-            </article>
-            <article class="page-mini-card">
-              <span>Token Exchange Time</span>
-              <strong>{{ token_elapsed_ms }} ms</strong>
-            </article>
-          </div>
-        </aside>
+    <main class="result-shell">
+      <header class="result-header">
+        <div>
+          <p class="eyebrow">Demo Workspace</p>
+          <h1>登录完成</h1>
+          <p>授权码已换取访问令牌，并完成资源接口访问检查。</p>
+        </div>
+        <nav class="action-bar" aria-label="Result actions">
+          <a class="secondary-button" href="/">返回工作台</a>
+          <a class="secondary-button" href="/login?scope=read:profile%20read:email%20admin:panel">管理员权限请求</a>
+          <a class="secondary-button" href="/login?scope=read:profile%20read:email&pkce=on">PKCE 登录</a>
+        </nav>
       </header>
 
-      <main class="page-content page-grid">
-        <section class="page-card">
-          <div class="page-card-head page-card-head--stack">
+      <section class="status-grid" aria-label="Access status">
+        <article class="metric-card">
+          <span>Profile</span>
+          <strong>{{ profile_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Email</span>
+          <strong>{{ email_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Admin</span>
+          <strong>{{ admin_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>PKCE</span>
+          <strong>{{ pkce_mode }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Token Exchange</span>
+          <strong>{{ token_elapsed_ms }} ms</strong>
+        </article>
+      </section>
+
+      <section class="result-layout">
+        <article class="panel">
+          <div class="panel-head">
             <div>
-              <p class="page-eyebrow">凭证</p>
-              <h2>Token 与 Payload</h2>
+              <p class="eyebrow">授权信息</p>
+              <h2>本次令牌</h2>
             </div>
-            <p class="page-section-copy">这里用于确认访问令牌内容，以及 JWT 中是否携带预期的 scope、角色与用户信息。</p>
+            <span class="badge">{{ expires_in }}s</span>
           </div>
-
-          <div class="page-token-box">
-            <div class="page-token-head">
-              <p class="page-eyebrow">Access Token</p>
-              <span class="page-chip">JWT</span>
-            </div>
-            <pre class="page-pre-wrap">{{ access_token }}</pre>
-          </div>
-
-          <div class="page-token-box">
-            <div class="page-token-head">
-              <p class="page-eyebrow">Decoded Payload</p>
-              <span class="page-chip">Contract Fields</span>
-            </div>
-            <pre class="page-pre-wrap">{{ decoded_payload }}</pre>
-          </div>
-        </section>
-
-        <section class="page-card">
-          <div class="page-card-head page-card-head--stack">
+          <dl class="request-list compact">
             <div>
-              <p class="page-eyebrow">资源结果</p>
-              <h2>受保护接口返回</h2>
+              <dt>Granted scope</dt>
+              <dd>{{ granted_scope }}</dd>
             </div>
-            <p class="page-section-copy">用于对比不同 scope 与角色组合下，/profile、/email、/admin 三个接口的访问是否符合预期。</p>
-          </div>
-          {{ result_cards | safe }}
-        </section>
-      </main>
+            <div>
+              <dt>Authorization code</dt>
+              <dd>{{ code }}</dd>
+            </div>
+          </dl>
+          <details class="code-box">
+            <summary>查看 Access Token</summary>
+            <pre>{{ access_token }}</pre>
+          </details>
+          <details class="code-box" open>
+            <summary>JWT Payload</summary>
+            <pre>{{ decoded_payload }}</pre>
+          </details>
+        </article>
 
-      <a href="https://deerflow.tech" target="_blank" class="deerflow-mark" rel="noreferrer">Created By Deerflow</a>
-    </div>
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">资源服务器</p>
+              <h2>访问结果</h2>
+            </div>
+            <span class="badge">Bearer token</span>
+          </div>
+          <div class="resource-stack">
+            {{ result_cards | safe }}
+          </div>
+        </article>
+      </section>
+    </main>
   </body>
 </html>

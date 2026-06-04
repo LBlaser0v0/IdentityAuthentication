@@ -9,7 +9,9 @@ if str(ROOT) not in sys.path:
 
 from config.settings import AUTH_SERVER_PORT, CLIENT_APP_PORT, RESOURCE_SERVER_PORT, SERVER_HOST
 
-PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
+WINDOWS_PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
+POSIX_PYTHON = ROOT / ".venv" / "bin" / "python"
+PYTHON = POSIX_PYTHON if POSIX_PYTHON.exists() else WINDOWS_PYTHON
 
 COMMANDS = [
     [str(PYTHON), "-m", "uvicorn", "auth_server.main:app", "--host", SERVER_HOST, "--port", str(AUTH_SERVER_PORT)],

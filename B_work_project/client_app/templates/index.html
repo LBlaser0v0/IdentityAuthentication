@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Workspace</title>
+    <link rel="stylesheet" href="/static/css/home.css" />
+  </head>
+  <body class="home-page-shell">
+    <main class="home-shell">
+      <section class="workspace-panel" aria-label="Demo Workspace login">
+        <div class="workspace-brand">
+          <div class="brand-mark">DW</div>
+          <div>
+            <p class="eyebrow">Demo Workspace</p>
+            <h1>登录到工作台</h1>
+          </div>
+        </div>
+
+        <p class="workspace-copy">使用统一身份认证服务继续访问个人资料、邮箱和后台资源。</p>
+
+        <form class="login-form" method="get" action="/login">
+          <input type="hidden" name="scope" value="read:profile read:email" />
+          <input type="hidden" name="pkce" value="auto" />
+          <button class="primary-button" type="submit">使用 Course Identity 登录</button>
+        </form>
+
+        <div class="divider"><span>实验入口</span></div>
+
+        <div class="scenario-list" aria-label="OAuth experiment shortcuts">
+          <a class="scenario-row" href="/login?scope=read:profile%20read:email">
+            <span>标准登录</span>
+            <small>read:profile read:email</small>
+          </a>
+          <a class="scenario-row" href="/login?scope=read:profile%20read:email%20admin:panel">
+            <span>管理员权限请求</span>
+            <small>追加 admin:panel</small>
+          </a>
+          <a class="scenario-row" href="/login?scope=read:profile%20read:email&pkce=on">
+            <span>PKCE 登录</span>
+            <small>S256 code challenge</small>
+          </a>
+        </div>
+
+        <details class="advanced-box">
+          <summary>自定义授权参数</summary>
+          <form class="advanced-form" method="get" action="/login">
+            <label>
+              Scope
+              <input name="scope" value="read:profile read:email" />
+            </label>
+            <label>
+              PKCE
+              <select name="pkce">
+                <option value="auto">Auto</option>
+                <option value="on">On</option>
+                <option value="off">Off</option>
+              </select>
+            </label>
+            <button class="secondary-button" type="submit">发起授权请求</button>
+          </form>
+        </details>
+      </section>
+
+      <aside class="context-panel" aria-label="OAuth context">
+        <div class="context-top">
+          <p class="eyebrow">OAuth Client</p>
+          <h2>demo-client</h2>
+          <p>这是一个模拟第三方业务系统的客户端。真正的账号密码只会提交给认证服务器。</p>
+        </div>
+
+        <dl class="context-list">
+          <div>
+            <dt>认证服务器</dt>
+            <dd>127.0.0.1:8000</dd>
+          </div>
+          <div>
+            <dt>客户端回调</dt>
+            <dd>127.0.0.1:8001/callback</dd>
+          </div>
+          <div>
+            <dt>资源接口</dt>
+            <dd>/profile /email /admin</dd>
+          </div>
+        </dl>
+
+        <a class="text-link" href="/guide">查看实验说明</a>
+      </aside>
+    </main>
+  </body>
+</html>

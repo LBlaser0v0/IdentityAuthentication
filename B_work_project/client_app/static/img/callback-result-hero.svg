@@ -1,0 +1,20 @@
+<svg width="260" height="220" viewBox="0 0 260 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="card" x1="46" y1="34" x2="214" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF4FF"/>
+      <stop offset="1" stop-color="#ECFBF7"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="88" y1="82" x2="174" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F7CFF"/>
+      <stop offset="1" stop-color="#6FD3C1"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="22" width="212" height="176" rx="28" fill="url(#card)"/>
+  <rect x="54" y="50" width="152" height="120" rx="20" fill="#FFFFFF" stroke="#DDE7FA"/>
+  <rect x="84" y="80" width="92" height="56" rx="18" fill="url(#badge)"/>
+  <path d="M106 109L121 124L154 92" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="74" y="148" width="46" height="8" rx="4" fill="#D7E5FF"/>
+  <rect x="128" y="148" width="58" height="8" rx="4" fill="#DFF7F1"/>
+  <circle cx="200" cy="56" r="10" fill="#4F7CFF" fill-opacity="0.15"/>
+  <circle cx="60" cy="178" r="12" fill="#6FD3C1" fill-opacity="0.2"/>
+</svg>

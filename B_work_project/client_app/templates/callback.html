@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Result</title>
+    <link rel="stylesheet" href="/static/css/pages.css" />
+  </head>
+  <body class="page-shell-body">
+    <main class="result-shell">
+      <header class="result-header">
+        <div>
+          <p class="eyebrow">Demo Workspace</p>
+          <h1>登录完成</h1>
+          <p>授权码已换取访问令牌，并完成资源接口访问检查。</p>
+        </div>
+        <nav class="action-bar" aria-label="Result actions">
+          <a class="secondary-button" href="/">返回工作台</a>
+          <a class="secondary-button" href="/login?scope=read:profile%20read:email%20admin:panel">管理员权限请求</a>
+          <a class="secondary-button" href="/login?scope=read:profile%20read:email&pkce=on">PKCE 登录</a>
+        </nav>
+      </header>
+
+      <section class="status-grid" aria-label="Access status">
+        <article class="metric-card">
+          <span>Profile</span>
+          <strong>{{ profile_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Email</span>
+          <strong>{{ email_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Admin</span>
+          <strong>{{ admin_status }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>PKCE</span>
+          <strong>{{ pkce_mode }}</strong>
+        </article>
+        <article class="metric-card">
+          <span>Token Exchange</span>
+          <strong>{{ token_elapsed_ms }} ms</strong>
+        </article>
+      </section>
+
+      <section class="result-layout">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">授权信息</p>
+              <h2>本次令牌</h2>
+            </div>
+            <span class="badge">{{ expires_in }}s</span>
+          </div>
+          <dl class="request-list compact">
+            <div>
+              <dt>Granted scope</dt>
+              <dd>{{ granted_scope }}</dd>
+            </div>
+            <div>
+              <dt>Authorization code</dt>
+              <dd>{{ code }}</dd>
+            </div>
+          </dl>
+          <details class="code-box">
+            <summary>查看 Access Token</summary>
+            <pre>{{ access_token }}</pre>
+          </details>
+          <details class="code-box" open>
+            <summary>JWT Payload</summary>
+            <pre>{{ decoded_payload }}</pre>
+          </details>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">资源服务器</p>
+              <h2>访问结果</h2>
+            </div>
+            <span class="badge">Bearer token</span>
+          </div>
+          <div class="resource-stack">
+            {{ result_cards | safe }}
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

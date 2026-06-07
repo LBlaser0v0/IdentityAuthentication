@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Identity Login</title>
+    <link rel="stylesheet" href="/static/css/pages.css" />
+  </head>
+  <body class="page-shell-body">
+    <main class="auth-shell">
+      <section class="auth-card" aria-label="Course Identity login form">
+        <div class="auth-brand">
+          <div class="brand-mark">CI</div>
+          <div>
+            <p class="eyebrow">Course Identity</p>
+            <h1>账号登录</h1>
+          </div>
+        </div>
+
+        <form class="auth-form" method="post" action="/authorize">
+          <input type="hidden" name="client_id" value="{{ client_id }}" />
+          <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}" />
+          <input type="hidden" name="scope" value="{{ scope }}" />
+          <input type="hidden" name="state" value="{{ state }}" />
+          <input type="hidden" name="code_challenge" value="{{ code_challenge }}" />
+          <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}" />
+
+          <label>
+            用户名
+            <input class="field" name="username" autocomplete="username" placeholder="alice 或 admin" autofocus />
+          </label>
+          <label>
+            密码
+            <input class="field" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" />
+          </label>
+          <button class="primary-button" type="submit">登录并继续</button>
+        </form>
+
+        <div class="demo-accounts">
+          <button type="button" class="account-chip" data-user="alice" data-pass="alice123">alice</button>
+          <button type="button" class="account-chip" data-user="admin" data-pass="admin123">admin</button>
+        </div>
+      </section>
+
+      <aside class="consent-panel" aria-label="Authorization request details">
+        <p class="eyebrow">授权请求</p>
+        <h2>{{ client_id }}</h2>
+        <p class="panel-copy">该客户端正在请求访问你的资源。登录后将返回客户端继续完成授权码交换。</p>
+
+        <dl class="request-list">
+          <div>
+            <dt>请求权限</dt>
+            <dd>{{ scope }}</dd>
+          </div>
+          <div>
+            <dt>回调地址</dt>
+            <dd>{{ redirect_uri }}</dd>
+          </div>
+          <div>
+            <dt>State</dt>
+            <dd>{{ state_hint }}</dd>
+          </div>
+          <div>
+            <dt>PKCE</dt>
+            <dd>{{ pkce_hint }}</dd>
+          </div>
+        </dl>
+      </aside>
+    </main>
+
+    <script>
+      document.querySelectorAll('[data-user]').forEach((button) => {
+        button.addEventListener('click', () => {
+          document.querySelector('[name="username"]').value = button.dataset.user;
+          document.querySelector('[name="password"]').value = button.dataset.pass;
+        });
+      });
+    </script>
+  </body>
+</html>

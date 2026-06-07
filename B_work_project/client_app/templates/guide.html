@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth Experiment Guide</title>
+    <link rel="stylesheet" href="/static/css/pages.css" />
+  </head>
+  <body class="page-shell-body">
+    <main class="page-shell">
+      <header class="result-header">
+        <div>
+          <p class="eyebrow">Demo Workspace</p>
+          <h1>实验设置</h1>
+          <p>这里保留课程实验需要的 scope、PKCE 和账号入口，主登录页保持接近真实业务系统。</p>
+        </div>
+        <nav class="action-bar" aria-label="Guide actions">
+          <a class="secondary-button" href="/">返回工作台</a>
+          <a class="secondary-button" href="/login">标准登录</a>
+        </nav>
+      </header>
+
+      <section class="result-layout">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Authorization Request</p>
+              <h2>自定义授权请求</h2>
+            </div>
+            <span class="badge">demo-client</span>
+          </div>
+
+          <form class="page-form" method="get" action="/login">
+            <label class="page-label" for="scope-select">快捷 scope</label>
+            <select id="scope-select" class="page-input" data-scope-select>
+              {% for item in quick_options %}
+              <option value="{{ item.value }}">{{ item.label }}</option>
+              {% endfor %}
+            </select>
+
+            <label class="page-label" for="scope-input">请求 scope</label>
+            <input id="scope-input" class="page-input" type="text" name="scope" value="{{ quick_options[0].value }}" data-scope-input />
+
+            <div class="page-toggle-grid" aria-label="PKCE mode">
+              <label class="page-toggle-card">
+                <input type="radio" name="pkce" value="auto" checked />
+                <span>Auto</span>
+                <small>跟随系统配置</small>
+              </label>
+              <label class="page-toggle-card">
+                <input type="radio" name="pkce" value="on" />
+                <span>On</span>
+                <small>强制启用 PKCE</small>
+              </label>
+              <label class="page-toggle-card">
+                <input type="radio" name="pkce" value="off" />
+                <span>Off</span>
+                <small>关闭做对照</small>
+              </label>
+            </div>
+
+            <button class="primary-button" type="submit">发起登录</button>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Accounts</p>
+              <h2>演示账号</h2>
+            </div>
+          </div>
+
+          <div class="page-account-list">
+            {% for item in account_cards %}
+            <article class="page-account-card">
+              <div class="page-account-icon {% if item.admin %}page-account-icon--admin{% endif %}">{{ item.icon }}</div>
+              <div>
+                <h3>{{ item.title }}</h3>
+                <p class="page-account-name">{{ item.name }}</p>
+                <p>{{ item.description }}</p>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" style="margin-top: 20px">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Scenarios</p>
+            <h2>常用实验场景</h2>
+          </div>
+        </div>
+
+        <div class="page-action-list">
+          {% for item in experiment_cards %}
+          <a class="page-action-card" href="{{ item.href }}">
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.description }}</p>
+            </div>
+            <span>{{ item.meta }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const scopeSelect = document.querySelector('[data-scope-select]');
+      const scopeInput = document.querySelector('[data-scope-input]');
+
+      if (scopeSelect && scopeInput) {
+        scopeSelect.addEventListener('change', () => {
+          scopeInput.value = scopeSelect.value;
+        });
+      }
+    </script>
+  </body>
+</html>

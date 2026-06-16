@@ -2,7 +2,7 @@ from json import dumps
 from textwrap import fill
 from time import perf_counter
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Form, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import httpx
@@ -196,3 +196,68 @@ def callback(request: Request, code: str, state: str = ""):
     response.delete_cookie("oauth_code_challenge_method")
     response.delete_cookie("oauth_pkce_mode")
     return response
+
+
+@router.post("/attack-proxy/authorize")
+def attack_proxy_authorize(
+    username: str = Form(...),
+    password: str = Form(...),
+    scope: str = Form("read:profile read:email"),
+):
+    """攻击演示代理：替攻击者向授权服务器发起登录，直接返回截获的 code"""
+    # 模拟攻击者截获了整个授权流程
+    authorize_resp = httpx.post(
+        f"{AUTH_SERVER_BASE}/authorize",
+        data={
+            "username": username,
+            "password": password,
+            "client_id": DEFAULT_CLIENT_ID,
+            "redirect_uri": DEFAULT_REDIRECT_URI,
+            "scope": scope,
+            "state": "attack-proxy",
+        },
+        follow_redirects=False,
+        timeout=10.0,
+    )
+    if authorize_resp.status_code != 302:
+        raise HTTPException(status_code=400, detail=f"authorize failed: {authorize_resp.text}")
+
+    from urllib.parse import parse_qs, urlparse
+
+    location = authorize_resp.headers["location"]
+    query = parse_qs(urlparse(location).query)
+    code = query.get("code", [""])[0]
+    state = query.get("state", [""])[0]
+
+    return {"code": code, "state": state, "location": location}
+
+
+@router.post("/attack-proxy/token")
+def attack_proxy_token(code: str = Form(...)):
+    """攻击演示代理：替攻击者用截获的 code 换 token（不传 code_verifier）"""
+    token_resp = httpx.post(
+        f"{AUTH_SERVER_BASE}/token",
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "client_id": DEFAULT_CLIENT_ID,
+            "client_secret": DEFAULT_CLIENT_SECRET,
+            "redirect_uri": DEFAULT_REDIRECT_URI,
+            # 注意：故意不传 code_verifier！
+        },
+        timeout=10.0,
+    )
+    if token_resp.status_code != 200:
+        raise HTTPException(status_code=400, detail=token_resp.text)
+    return token_resp.json()
+
+
+@router.get("/attack-proxy/resource")
+def attack_proxy_resource(path: str, access_token: str):
+    """攻击演示代理：替攻击者用窃取的 token 访问资源"""
+    resource_resp = httpx.get(
+        f"{RESOURCE_SERVER_BASE}{path}",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=10.0,
+    )
+    return {"status": resource_resp.status_code, "body": resource_resp.text}

